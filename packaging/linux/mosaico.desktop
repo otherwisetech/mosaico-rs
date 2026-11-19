@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=mosaico
+GenericName=Photo organizer
+Comment=Organize your photos and videos into folders by date
+Exec=mosaico %F
+Icon=mosaico
+Terminal=false
+Categories=Graphics;Photography;
+MimeType=inode/directory;

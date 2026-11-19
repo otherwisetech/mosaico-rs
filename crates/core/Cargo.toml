@@ -1,0 +1,26 @@
+[package]
+name = "mosaico-core"
+description = "Photo library organizer core: scan, capture dates, thumbnails, plan, apply and undo. No UI."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+name = "mosaico_core"
+
+[dependencies]
+blake3 = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "webp", "tiff"] }
+rayon = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
+tempfile = "3"
+
+# Finder's "bundle" bit marks packages that have no extension (e.g. Photo Booth Library)
+[target.'cfg(target_os = "macos")'.dependencies]
+libc = "0.2"

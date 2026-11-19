@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E27A57"/>
+      <stop offset="1" stop-color="#A8432F"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <!-- a mosaic of photo tiles; the big one shows a landscape -->
+  <rect x="250" y="250" width="290" height="318" rx="40" fill="#F7F1E8"/>
+  <path d="M286 532 L374 418 L428 482 L462 446 L504 532 Z" fill="#C25A40"/>
+  <circle cx="470" cy="330" r="34" fill="#F2B544"/>
+  <rect x="576" y="250" width="198" height="174" rx="40" fill="#F2B544"/>
+  <rect x="576" y="460" width="198" height="314" rx="40" fill="#F7F1E8" fill-opacity="0.92"/>
+  <rect x="250" y="604" width="290" height="170" rx="40" fill="#F7F1E8" fill-opacity="0.55"/>
+</svg>
