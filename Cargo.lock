@@ -3918,7 +3918,7 @@ dependencies = [
 
 [[package]]
 name = "mosaico-app"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -3936,7 +3936,7 @@ dependencies = [
 
 [[package]]
 name = "mosaico-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "blake3",
  "chrono",
@@ -3950,7 +3950,7 @@ dependencies = [
 
 [[package]]
 name = "mosaico-i18n"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "moxcms"
