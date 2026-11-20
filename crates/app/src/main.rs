@@ -4,6 +4,7 @@
 mod app;
 mod organize;
 mod settings;
+mod star;
 mod theme;
 mod thumbs;
 mod timeline;

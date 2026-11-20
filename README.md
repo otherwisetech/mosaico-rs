@@ -70,7 +70,10 @@ Ready-made builds for macOS (Apple silicon and Intel), Linux and Windows are att
 - **Windows:** unzip and run `mosaico.exe` (SmartScreen may ask to confirm, since it is unsigned).
 
 The downloads are built by GitHub Actions from the tagged source, but they are **not code-signed
-or notarized**. mosaico makes no network requests.
+or notarized**. The only network request mosaico makes is reading the project's star count
+(`api.github.com/repos/otherwisetech/mosaico-rs`, no login, nothing about you or your photos) at
+most once a day, shown next to *Star on GitHub*; turn it off in the globe menu (*Show GitHub star
+count*). Photos never leave your machine.
 
 ## Build and run
 

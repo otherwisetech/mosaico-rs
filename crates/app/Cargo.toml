@@ -16,6 +16,9 @@ i18n.workspace = true
 mosaico-core.workspace = true
 anyhow.workspace = true
 chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+# GitHub star count (one GET a day)
+ureq = { version = "3", default-features = false, features = ["rustls"] }
+serde_json = "1"
 gpui.workspace = true
 gpui_platform.workspace = true
 gpui-component.workspace = true
