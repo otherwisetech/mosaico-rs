@@ -1,9 +1,17 @@
-//! Tiny settings file (`settings.json` in the platform config dir). Hand-rolled JSON: one key.
+//! Tiny settings file (`settings.json` in the platform config dir). Hand-rolled JSON.
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Settings {
     pub language: Option<String>,
+    /// fetch the repo's star count from api.github.com (once a day)
+    pub github_stars: bool,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Settings { language: None, github_stars: true }
+    }
 }
 
 fn dir() -> Option<PathBuf> {
@@ -28,14 +36,18 @@ impl Settings {
     }
 
     fn parse(s: &str) -> Settings {
-        Settings { language: json_string(s, "language") }
+        Settings { language: json_string(s, "language"), github_stars: json_bool(s, "github_stars").unwrap_or(true) }
     }
 
     fn to_json(&self) -> String {
-        match &self.language {
-            Some(l) => format!("{{\n  \"language\": \"{}\"\n}}\n", l.replace(['"', '\\'], "")),
-            None => "{}\n".into(),
+        let mut fields = Vec::new();
+        if let Some(l) = &self.language {
+            fields.push(format!("  \"language\": \"{}\"", l.replace(['"', '\\'], "")));
         }
+        if !self.github_stars {
+            fields.push("  \"github_stars\": false".into());
+        }
+        if fields.is_empty() { "{}\n".into() } else { format!("{{\n{}\n}}\n", fields.join(",\n")) }
     }
 }
 
@@ -43,6 +55,18 @@ fn json_string(s: &str, key: &str) -> Option<String> {
     let at = s.find(&format!("\"{key}\""))? + key.len() + 2;
     let rest = s[at..].trim_start().strip_prefix(':')?.trim_start().strip_prefix('"')?;
     Some(rest[..rest.find('"')?].to_string())
+}
+
+fn json_bool(s: &str, key: &str) -> Option<bool> {
+    let at = s.find(&format!("\"{key}\""))? + key.len() + 2;
+    let rest = s[at..].trim_start().strip_prefix(':')?.trim_start();
+    if rest.starts_with("true") {
+        Some(true)
+    } else if rest.starts_with("false") {
+        Some(false)
+    } else {
+        None
+    }
 }
 
 fn system_locale() -> Option<String> {
@@ -100,8 +124,12 @@ mod tests {
 
     #[test]
     fn roundtrip() {
-        let s = Settings { language: Some("en".into()) };
+        let s = Settings { language: Some("en".into()), ..Settings::default() };
         assert_eq!(Settings::parse(&s.to_json()), s);
+        let s = Settings { language: Some("fr".into()), github_stars: false };
+        assert_eq!(Settings::parse(&s.to_json()), s);
+        assert!(Settings::parse("{}").github_stars);
+        assert!(!Settings::parse("{ \"github_stars\" : false }").github_stars);
         assert_eq!(Settings::parse(&Settings::default().to_json()), Settings::default());
         assert_eq!(Settings::parse("garbage"), Settings::default());
     }
