@@ -14,6 +14,9 @@ crates/app   `mosaico` desktop app (GPUI + gpui-component): app.rs (phases, star
              thumbs.rs (thumbnail requests + LRU image cache), otherwise.rs (otherwise-link: links
              in, registry people read-only, About's other apps), people_view.rs (People list,
              selection bar with person tags); core/src/people.rs: the tags (`people.json`)
+             storage.rs: `<data root>/mosaico/` (set into core's `dirs::set_app_dir` at startup),
+             one-time migration from the old platform folders (journals never lost), last
+             destination, people.json conflicted copies; vcity.rs: Vcity invitation (About, Help)
 ```
 
 ## Rules
@@ -26,6 +29,9 @@ crates/app   `mosaico` desktop app (GPUI + gpui-component): app.rs (phases, star
   before doing it. No delete feature.
 - The UI never touches the disk except through `plan::build` / `apply::apply` / `apply::undo`,
   and only after the preview screen and a confirmation dialog.
+- App data (journals, people.json, settings) moves only through `storage::migrate`: rename or
+  verified copy then delete, never overwrite, a taken journal name gets a free one. Thumbnails
+  stay machine-local (`dirs::cache_dir`). Core never depends on otherwise-link.
 - **i18n is mandatory.** No user-facing string literal in `app/src` or `core/src`; use
   `i18n::t!` / `tn!` and add the key to **every** `crates/i18n/locales/<lang>/` catalog in the
   same change. Untranslatable literals end their line with `// i18n-ok`. Month names are the

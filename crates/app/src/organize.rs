@@ -39,6 +39,7 @@ impl MosaicoApp {
                 && let Some(p) = paths.into_iter().next()
             {
                 this.update(cx, |this, cx| {
+                    crate::storage::remember_dest(&p);
                     this.dest = Some(p);
                     cx.notify();
                 })

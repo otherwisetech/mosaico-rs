@@ -53,9 +53,8 @@ tests against temporary folders:
 - Copies are fsynced and re-read to verify size and hash. A move is a hard link + unlink within
   one filesystem; across filesystems it is copy → fsync → verify → remove the original. Nothing
   else is ever deleted; there is no delete feature.
-- Every step is written (and fsynced) to a JSON-lines journal *before* it happens, in the app's
-  data folder (`~/Library/Application Support/mosaico/journals`, `$XDG_DATA_HOME/mosaico`,
-  `%APPDATA%\mosaico`), so undo also works after a crash or a cancel. Undo never removes a copy
+- Every step is written (and fsynced) to a JSON-lines journal *before* it happens, in mosaico's
+  data folder (`~/.otherwise/mosaico/journals`, see *Where files live*), so undo also works after a crash or a cancel. Undo never removes a copy
   whose original is gone, nor a file that changed since it was organized.
 
 ## Works with other Otherwise apps
@@ -87,6 +86,26 @@ Otherwise Technologies' apps share. Everything stays on your computer.
 - **About** lists the other Otherwise apps installed on this computer; click one to open it.
 
 mosaico has no folder it watches, so it publishes nothing to Otherwise Apps' *Today* view.
+
+## Where files live
+
+- **mosaico's own files** (undo journals, `people.json`, settings, recent folders, the last
+  destination) live in the Otherwise data folder, `~/.otherwise/mosaico/` (or wherever you moved
+  the data root in Otherwise Apps). Version 0.3 moves them there once from the old folder
+  (`~/Library/Application Support/mosaico`, `$XDG_DATA_HOME/mosaico` + `$XDG_CONFIG_HOME/mosaico`,
+  `%APPDATA%\mosaico`): each file is renamed, or copied, verified and only then deleted; nothing
+  is overwritten, and a journal whose name is already taken moves under a free name so undo keeps
+  every run. A `.migrated-to-otherwise` note stays behind. `OTHERWISE_DATA_DIR` points the data
+  root elsewhere.
+- **Thumbnails** stay in the machine-local cache folder: they can be gigabytes, are rebuilt on
+  demand, and shouldn't fill a synced folder.
+- **Your photos** go where you choose; the destination you picked last is offered again (never a
+  temp folder). The app menu and the globe menu have *Show mosaico's data folder*.
+- **Cloud folders:** if a sync client leaves conflicted copies of `people.json`, the People list
+  says so, with *Show in Finder*.
+- **Help → Crea tu tienda en Vcity** (also in About): a short invitation to
+  [Vcity](https://vcity.io), online stores for businesses. The link only carries
+  `utm_source=mosaico`; nothing about you.
 
 ## Download
 

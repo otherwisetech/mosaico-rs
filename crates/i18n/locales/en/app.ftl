@@ -163,3 +163,16 @@ app.people.tag_photo = Person in this photo
 app.people.tag_folder = Person in this folder
 app.people.registry_off = Turn on shared entities in Otherwise Apps to tag people from your other apps.
 app.people.none = No people in the shared registry yet.
+
+# data folder, cloud safety
+app.menu.help = Help
+app.file.reveal_macos = Show in Finder
+app.file.reveal_windows = Show in Explorer
+app.file.reveal_linux = Show in file manager
+app.file.reveal_data = Show mosaico’s data folder (undo journals, people)
+app.people.conflicts.one = Your sync service left {n} conflicted copy of the people tags.
+app.people.conflicts.other = Your sync service left {n} conflicted copies of the people tags.
+
+# Vcity
+app.vcity.menu = Create your store on Vcity
+app.vcity.pitch = Sell products or services? Create your business’s online store on Vcity — catalog, orders, payments, bookings, customer chat and more.

@@ -7,6 +7,8 @@ mod otherwise;
 mod people_view;
 mod settings;
 mod star;
+mod storage;
+mod vcity;
 mod theme;
 mod thumbs;
 mod timeline;
@@ -19,7 +21,7 @@ use gpui_component_assets::Assets;
 use std::borrow::Cow;
 use std::path::PathBuf;
 
-actions!(mosaico, [Quit, OpenWebsite]);
+actions!(mosaico, [Quit, OpenWebsite, OpenVcity, RevealData]);
 
 pub(crate) const APP_NAME: &str = "mosaico"; // i18n-ok: product name
 pub(crate) const COMPANY: &str = "Otherwise Technologies LLC"; // i18n-ok: company name
@@ -33,9 +35,12 @@ pub(crate) fn set_app_menus(cx: &mut App) {
         MenuItem::action(i18n::t!("app.about.menu", app = APP_NAME), app::ShowAbout),
         MenuItem::action(i18n::t!("app.credit.menu", company = COMPANY), OpenWebsite),
         MenuItem::separator(),
+        MenuItem::action(i18n::t!("app.file.reveal_data"), RevealData),
+        MenuItem::separator(),
         MenuItem::action(i18n::t!("app.menu.quit"), Quit),
     ];
-    cx.set_menus(vec![Menu { name: APP_NAME.into(), items, disabled: false }]);
+    let help = vec![MenuItem::action(vcity::menu_label(), OpenVcity)];
+    cx.set_menus(vec![Menu { name: APP_NAME.into(), items, disabled: false }, Menu { name: i18n::t!("app.menu.help").into(), items: help, disabled: false }]);
 }
 
 /// gpui-component's icon set plus our own `icons/*.svg`.
@@ -85,6 +90,7 @@ const FONTS: [&[u8]; 3] = [
 ];
 
 fn main() {
+    storage::init();
     i18n::set_locale(settings::initial_language(&settings::Settings::load()));
     if matches!(std::env::args().nth(1).as_deref(), Some("-h" | "--help")) {
         println!("{}", i18n::t!("app.cli.usage"));
@@ -112,6 +118,8 @@ fn main() {
         cx.bind_keys([KeyBinding::new("secondary-q", Quit, None)]);
         cx.on_action(|_: &Quit, cx| cx.quit());
         cx.on_action(|_: &OpenWebsite, cx| cx.open_url(COMPANY_URL));
+        cx.on_action(|_: &OpenVcity, cx| vcity::open(cx));
+        cx.on_action(|_: &RevealData, cx| storage::reveal_data_dir(cx));
         gpui_component::set_locale(i18n::locale());
         set_app_menus(cx);
         cx.on_window_closed(|cx, _| cx.quit()).detach();
