@@ -14,6 +14,7 @@ pub mod hash;
 pub mod journal;
 pub mod media;
 pub mod meta;
+pub mod people;
 pub mod plan;
 pub mod scan;
 pub mod thumb;

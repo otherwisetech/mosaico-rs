@@ -24,10 +24,15 @@ pub struct Year {
 
 /// Build the timeline; with `only_uncertain` it holds just the items dated by modified time.
 pub fn build(lib: &Library, only_uncertain: bool) -> Vec<Year> {
+    build_with(lib, |it| !only_uncertain || it.uncertain())
+}
+
+/// The timeline of the items `keep` accepts (a filter: uncertain dates, a person…).
+pub fn build_with(lib: &Library, keep: impl Fn(&crate::Item) -> bool) -> Vec<Year> {
     let mut years: Vec<Year> = Vec::new();
     // items are sorted by date, so walk them backwards and push months newest first
     for (ix, it) in lib.items.iter().enumerate().rev() {
-        if only_uncertain && !it.uncertain() {
+        if !keep(it) {
             continue;
         }
         let (y, m) = (it.taken.year(), it.taken.month());

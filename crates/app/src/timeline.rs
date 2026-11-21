@@ -46,7 +46,9 @@ impl MosaicoApp {
         let cols = (((avail + GAP) / (TILE + GAP)).floor() as usize).max(1);
         self.ensure_rows(cols);
         let center = if self.rows.is_empty() {
-            let msg = if self.only_uncertain { i18n::t!("app.grid.empty_uncertain") } else { i18n::t!("app.grid.empty") };
+            let msg = if self.person.is_some() {
+                i18n::t!("app.people.empty")
+            } else if self.only_uncertain { i18n::t!("app.grid.empty_uncertain") } else { i18n::t!("app.grid.empty") };
             div().size_full().flex().items_center().justify_center().text_color(t.ink_muted).text_size(px(14.)).child(msg).into_any_element()
         } else {
             let n = self.rows.len();
@@ -67,11 +69,12 @@ impl MosaicoApp {
             .size_full()
             .min_h_0()
             .child(self.render_sidebar(t, cx))
-            .child(div().flex_1().min_w_0().h_full().bg(t.surface).child(center))
+            .child(div().flex_1().min_w_0().h_full().flex().flex_col().bg(t.surface).child(div().flex_1().min_h_0().child(center)).children(self.render_people_bar(t, cx)))
             .when(self.panel, |d| d.child(self.render_panel(t, cx)))
     }
 
     fn render_sidebar(&self, t: &Tokens, cx: &mut Context<Self>) -> impl IntoElement {
+        let people = self.render_people_list(t, cx);
         let mut list = div().flex().flex_col().gap(px(1.)).p(px(8.));
         let mut mi = 0;
         let hover = t.canvas;
@@ -129,7 +132,7 @@ impl MosaicoApp {
                 );
             }
         }
-        div().id("sidebar").flex_none().w(px(SIDE_W)).h_full().overflow_y_scroll().border_r_1().border_color(t.border).bg(t.canvas).child(list)
+        div().id("sidebar").flex_none().w(px(SIDE_W)).h_full().overflow_y_scroll().border_r_1().border_color(t.border).bg(t.canvas).children(people).child(list)
     }
 
     fn grid_row(&mut self, t: &Tokens, ix: usize, cx: &mut Context<Self>) -> AnyElement {
