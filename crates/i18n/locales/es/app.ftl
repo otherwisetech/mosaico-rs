@@ -163,3 +163,16 @@ app.people.tag_photo = Persona en esta foto
 app.people.tag_folder = Persona en esta carpeta
 app.people.registry_off = Activa las entidades compartidas en Otherwise Apps para etiquetar personas de tus otras apps.
 app.people.none = Aún no hay personas en el registro compartido.
+
+# data folder, cloud safety
+app.menu.help = Ayuda
+app.file.reveal_macos = Mostrar en Finder
+app.file.reveal_windows = Mostrar en el Explorador
+app.file.reveal_linux = Mostrar en el gestor de archivos
+app.file.reveal_data = Mostrar la carpeta de datos de mosaico (diarios para deshacer, personas)
+app.people.conflicts.one = Tu servicio de sincronización dejó {n} copia en conflicto de las etiquetas de personas.
+app.people.conflicts.other = Tu servicio de sincronización dejó {n} copias en conflicto de las etiquetas de personas.
+
+# Vcity
+app.vcity.menu = Crea tu tienda en Vcity
+app.vcity.pitch = ¿Vendes productos o servicios? Crea la tienda virtual de tu empresa en Vcity: catálogo, pedidos, pagos, reservas, chat con clientes y mucho más.

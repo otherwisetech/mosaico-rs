@@ -141,6 +141,21 @@ impl MosaicoApp {
                 .child(div().flex_1().min_w_0().truncate().child(label))
         };
         let mut list = div().flex().flex_col().gap(px(1.)).px(px(8.)).pt(px(8.)).child(div().px(px(8.)).pb(px(4.)).child(ui::section_title(t, i18n::t!("app.people.title"))));
+        if let Some(first) = self.tags_conflicts.first().cloned() {
+            let accent = t.accent;
+            list = list.child(
+                div()
+                    .px(px(8.))
+                    .pb(px(6.))
+                    .flex()
+                    .flex_col()
+                    .gap(px(2.))
+                    .text_size(px(11.))
+                    .text_color(t.ink_muted)
+                    .child(i18n::tn!("app.people.conflicts", self.tags_conflicts.len()))
+                    .child(div().id("people-conflicts").text_color(accent).cursor_pointer().hover(|s| s.underline()).child(crate::storage::reveal_label()).on_click(move |_, _, cx| cx.reveal_path(&first))),
+            );
+        }
         list = list.child(row("person-all", 0, i18n::t!("app.people.all"), self.person.is_none()).on_click(cx.listener(|this, _, _, cx| this.set_person_filter(None, cx))));
         for (i, (id, name)) in people.into_iter().enumerate() {
             let on = self.person.as_deref() == Some(id.as_str());

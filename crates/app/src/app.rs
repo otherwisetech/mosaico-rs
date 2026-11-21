@@ -105,6 +105,8 @@ pub struct MosaicoApp {
     pub tags: mosaico_core::people::Tags,
     pub tags_file: Option<PathBuf>,
     pub tags_ok: bool,
+    /// conflicted copies of `people.json` left by a sync client
+    pub tags_conflicts: Vec<PathBuf>,
     /// Show only the photos of this registry person.
     pub person: Option<String>,
     /// The registry's people; None while the shared registry is off.
@@ -150,7 +152,7 @@ impl MosaicoApp {
             images: LruImages::new(600, cx),
             grid_scroll: UniformListScrollHandle::new(),
             panel: false,
-            dest: None,
+            dest: crate::storage::last_dest(),
             template,
             mode: Mode::Copy,
             include_uncertain: true,
@@ -167,6 +169,7 @@ impl MosaicoApp {
             tags: Default::default(),
             tags_file: mosaico_core::people::default_file(),
             tags_ok: true,
+            tags_conflicts: Vec::new(),
             person: None,
             people: None,
             other_apps: Vec::new(),
@@ -180,6 +183,9 @@ impl MosaicoApp {
                     this.tags_ok = false;
                 }
             }
+        }
+        if let Some(f) = &this.tags_file {
+            this.tags_conflicts = crate::storage::conflicted_copies(f);
         }
         this.refresh_people(cx);
         this.watch_links(window, cx);
@@ -406,9 +412,12 @@ impl MosaicoApp {
             }));
             menu = menu.label(i18n::t!("app.star.setting_hint"));
             let w = weak.clone();
-            menu.separator().item(PopupMenuItem::new(i18n::t!("app.about.menu", app = crate::APP_NAME)).on_click(move |_, _, cx| {
-                w.update(cx, |this, cx| this.show_about(cx)).ok();
-            }))
+            menu.separator()
+                .item(PopupMenuItem::new(i18n::t!("app.file.reveal_data")).on_click(|_, _, cx| crate::storage::reveal_data_dir(cx)))
+                .item(PopupMenuItem::new(i18n::t!("app.about.menu", app = crate::APP_NAME)).on_click(move |_, _, cx| {
+                    w.update(cx, |this, cx| this.show_about(cx)).ok();
+                }))
+                .item(PopupMenuItem::new(crate::vcity::menu_label()).on_click(|_, _, cx| crate::vcity::open(cx)))
         });
         let uncertain = self.library.as_ref().map(|l| l.count_by_source(mosaico_core::DateSource::Modified)).unwrap_or(0);
         let filter_on = self.only_uncertain;
@@ -673,6 +682,7 @@ impl MosaicoApp {
                     .child(crate::star::about_button(t, cx)),
             )
             .child(crate::star::about_ask(t))
+            .child(crate::vcity::about_block(t))
             .children(self.render_other_apps(t))
             .child(div().text_size(px(11.)).text_color(t.ink_muted).child(i18n::t!("app.about.license")));
         div()
