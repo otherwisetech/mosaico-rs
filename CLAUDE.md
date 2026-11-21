@@ -11,7 +11,9 @@ crates/core  mosaico-core: scan → meta (dates, previews) → timeline; thumb; 
 crates/i18n  mosaico-i18n: embedded translation catalogs, t!/tn!/tv! macros, i18n guard tests
 crates/app   `mosaico` desktop app (GPUI + gpui-component): app.rs (phases, start/scan, About),
              timeline.rs (sidebar + grid), organize.rs (panel, preview, apply, done, undo),
-             thumbs.rs (thumbnail requests + LRU image cache)
+             thumbs.rs (thumbnail requests + LRU image cache), otherwise.rs (otherwise-link: links
+             in, registry people read-only, About's other apps), people_view.rs (People list,
+             selection bar with person tags); core/src/people.rs: the tags (`people.json`)
 ```
 
 ## Rules
@@ -29,6 +31,11 @@ crates/app   `mosaico` desktop app (GPUI + gpui-component): app.rs (phases, star
   same change. Untranslatable literals end their line with `// i18n-ok`. Month names are the
   dynamic `common.month.{1..12}` keys (listed in `DYNAMIC_PREFIXES`).
 - No C dependencies (no libheif/libraw/ffmpeg). HEIC without an embedded JPEG gets a placeholder.
+  The one exception is SQLite, bundled by otherwise-link (app crate only; core stays C-free).
+- Person tags reference shared-registry entity ids and live only in mosaico's `people.json`
+  (atomic write; a file that doesn't parse is never overwritten). mosaico never writes the
+  registry: no upsert, no pull/ack. otherwise-link is pinned by git tag and must only add its
+  own crates to Cargo.lock; tests use temp dirs (`Root::at`).
 - Comments: sparse, only non-obvious why.
 - GPUI pins: `Cargo.lock` pins the same zed / gpui-component revs as rama-rs. Never
   `cargo update` the GPUI git deps; restore the lock if a partial build prunes them.

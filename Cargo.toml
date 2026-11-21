@@ -4,7 +4,7 @@ members = ["crates/i18n", "crates/core", "crates/app"]
 default-members = ["crates/i18n", "crates/core"]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT OR Apache-2.0"
@@ -14,6 +14,8 @@ repository = "https://github.com/otherwisetech/mosaico-rs"
 mosaico-core = { path = "crates/core" }
 i18n = { path = "crates/i18n", package = "mosaico-i18n" }
 anyhow = "1"
+# deep links, app discovery and the shared entity registry of Otherwise apps
+otherwise-link = { git = "https://github.com/otherwisetech/otherwise-link", tag = "v0.1.0" }
 # GPUI stack, same as rama, diskmap and genealogy-rs. Git deps move: Cargo.lock pins revs.
 gpui = { git = "https://github.com/zed-industries/zed" }
 gpui_platform = { git = "https://github.com/zed-industries/zed", features = ["font-kit"] }

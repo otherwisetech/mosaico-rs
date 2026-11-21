@@ -3,6 +3,8 @@
 
 mod app;
 mod organize;
+mod otherwise;
+mod people_view;
 mod settings;
 mod star;
 mod theme;
@@ -88,8 +90,17 @@ fn main() {
         println!("{}", i18n::t!("app.cli.usage"));
         return;
     }
-    let initial: Vec<PathBuf> = std::env::args().skip(1).map(PathBuf::from).collect();
-    gpui_platform::application().with_assets(AppAssets).run(move |cx| {
+    let mut initial: Vec<PathBuf> = Vec::new();
+    for a in std::env::args().skip(1).filter_map(|a| otherwise::arg_action(&a)) {
+        match a {
+            otherwise::Action::Open(p) => initial.push(p),
+            other => otherwise::push(other),
+        }
+    }
+    otherwise::register_scheme();
+    let application = gpui_platform::application().with_assets(AppAssets);
+    application.on_open_urls(otherwise::push_urls);
+    application.run(move |cx| {
         if let Err(e) = cx.text_system().add_fonts(FONTS.iter().map(|f| Cow::Borrowed(*f)).collect()) {
             eprintln!("fonts: {e}");
         }

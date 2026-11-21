@@ -58,6 +58,36 @@ tests against temporary folders:
   `%APPDATA%\mosaico`), so undo also works after a crash or a cancel. Undo never removes a copy
   whose original is gone, nor a file that changed since it was organized.
 
+## Works with other Otherwise apps
+
+mosaico uses [otherwise-link](https://github.com/otherwisetech/otherwise-link), the small layer
+Otherwise Technologies' apps share. Everything stays on your computer.
+
+- **People.** When the shared entity registry is on (in
+  [Otherwise Apps](https://github.com/otherwisetech/otherwise-apps) → Entities), select a photo and
+  use **Person in this photo** / **Person in this folder** to tag the people your other apps know
+  (for example from genealogy-rs). A folder's tag covers everything under it. The sidebar's
+  **People** list shows only that person's photos. mosaico only *reads* the registry; the tags live
+  in its own data folder (`people.json` next to the journals), never in your photos. They are
+  keyed by path, so photos you *move* with Organize lose theirs (copies keep the originals'
+  tags). When two people are merged in the registry, their tags follow.
+- **Links.** mosaico opens `otherwise-mosaico://` links (also `otherwise://mosaico/…` through
+  Otherwise Apps):
+
+  | Link | Does |
+  |------|------|
+  | `otherwise://mosaico` | brings mosaico to the front |
+  | `otherwise://mosaico/open?path=/Volumes/SD/DCIM` | scans that folder (absolute, percent-encoded path) |
+  | `otherwise://mosaico/entity/<uuid>` | shows the photos tagged with that registry person |
+
+  macOS registers the scheme from the app's `Info.plist`; Windows registers it for your user
+  (`HKCU\Software\Classes\otherwise-mosaico`) when mosaico starts; on Linux `mosaico.desktop`
+  declares `x-scheme-handler/otherwise-mosaico` and mosaico makes itself the handler when that
+  file is in `~/.local/share/applications`.
+- **About** lists the other Otherwise apps installed on this computer; click one to open it.
+
+mosaico has no folder it watches, so it publishes nothing to Otherwise Apps' *Today* view.
+
 ## Download
 
 Ready-made builds for macOS (Apple silicon and Intel), Linux and Windows are attached to each

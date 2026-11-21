@@ -101,6 +101,16 @@ pub struct MosaicoApp {
     focus: FocusHandle,
     pub about: bool,
     pub logo: Arc<Image>,
+    /// Person tags (`people.json`); `tags_ok` is false when the file exists but can't be read.
+    pub tags: mosaico_core::people::Tags,
+    pub tags_file: Option<PathBuf>,
+    pub tags_ok: bool,
+    /// Show only the photos of this registry person.
+    pub person: Option<String>,
+    /// The registry's people; None while the shared registry is off.
+    pub people: Option<Vec<(String, String)>>,
+    /// Other Otherwise apps installed here, found when About opens.
+    pub other_apps: Vec<(otherwise_link::apps::AppSpec, otherwise_link::apps::Installed)>,
     _subs: Vec<Subscription>,
 }
 
@@ -110,6 +120,11 @@ impl MosaicoApp {
         let template = cx.new(|cx| InputState::new(window, cx).default_value(plan::DEFAULT_TEMPLATE));
         let subs = vec![
             window.observe_window_appearance(|window, cx| sync_theme(Some(window), cx)),
+            cx.observe_window_activation(window, |this, window, cx| {
+                if window.is_window_active() {
+                    this.refresh_people(cx);
+                }
+            }),
             cx.subscribe_in(&template, window, |_, _, ev: &InputEvent, _, cx| {
                 if matches!(ev, InputEvent::Change) {
                     cx.notify();
@@ -149,8 +164,25 @@ impl MosaicoApp {
             focus,
             about: false,
             logo: Arc::new(Image::from_bytes(ImageFormat::Png, crate::ICON_PNG.to_vec())),
+            tags: Default::default(),
+            tags_file: mosaico_core::people::default_file(),
+            tags_ok: true,
+            person: None,
+            people: None,
+            other_apps: Vec::new(),
             _subs: subs,
         };
+        if let Some(f) = &this.tags_file {
+            match mosaico_core::people::Tags::load(f) {
+                Ok(t) => this.tags = t,
+                Err(e) => {
+                    eprintln!("mosaico: {}: {e}", f.display()); // i18n-ok: developer diagnostic
+                    this.tags_ok = false;
+                }
+            }
+        }
+        this.refresh_people(cx);
+        this.watch_links(window, cx);
         this.refresh_journal();
         this.start_ticker(cx);
         let initial: Vec<PathBuf> = initial.into_iter().filter(|p| p.is_dir()).collect();
@@ -271,7 +303,11 @@ impl MosaicoApp {
 
     pub fn rebuild_timeline(&mut self) {
         let Some(lib) = &self.library else { return };
-        let years = timeline::build(lib, self.only_uncertain);
+        let only_uncertain = self.only_uncertain;
+        let years = match &self.person {
+            Some(id) => timeline::build_with(lib, |it| self.tags.has(&it.path, id) && (!only_uncertain || it.uncertain())),
+            None => timeline::build(lib, only_uncertain),
+        };
         self.months = Rc::new(years.iter().flat_map(|y| y.months.iter().cloned()).collect());
         self.years = Rc::new(years);
         self.rows_key = (0, false, 0);
@@ -332,6 +368,7 @@ impl MosaicoApp {
 
     pub fn show_about(&mut self, cx: &mut Context<Self>) {
         self.about = true;
+        self.find_other_apps(cx);
         cx.notify();
     }
 
@@ -636,6 +673,7 @@ impl MosaicoApp {
                     .child(crate::star::about_button(t, cx)),
             )
             .child(crate::star::about_ask(t))
+            .children(self.render_other_apps(t))
             .child(div().text_size(px(11.)).text_color(t.ink_muted).child(i18n::t!("app.about.license")));
         div()
             .id("about-backdrop")
