@@ -253,27 +253,39 @@ impl MosaicoApp {
         if self.other_apps.is_empty() {
             return None;
         }
-        let rows = self.other_apps.iter().enumerate().map(|(i, (spec, installed))| {
+        // compact chips that wrap, so About keeps its height however many apps are installed
+        let chips = self.other_apps.iter().enumerate().map(|(i, (spec, installed))| {
             let installed = installed.clone();
-            let hover = t.canvas;
+            let hover = t.border_strong;
             div()
                 .id(("about-app", i))
                 .flex()
                 .items_center()
-                .justify_between()
-                .gap(px(10.))
-                .px(px(10.))
-                .py(px(5.))
-                .rounded(px(8.))
+                .gap(px(otherwise_ui::tokens::space::S2))
+                .px(px(otherwise_ui::tokens::space::S4))
+                .py(px(otherwise_ui::tokens::space::S1))
+                .rounded(px(otherwise_ui::tokens::radius::CHIP))
+                .border_1()
+                .border_color(t.border)
+                .text_size(px(otherwise_ui::tokens::text::SMALL))
                 .cursor_pointer()
-                .hover(move |s| s.bg(hover))
-                .child(div().text_size(px(13.)).child(spec.name.clone()))
-                .child(div().text_size(px(11.)).text_color(t.ink_muted).child(installed.version.clone().unwrap_or_default()))
+                .hover(move |s| s.border_color(hover))
+                .child(div().text_color(t.ink).child(spec.name.clone()))
+                .child(div().text_color(t.ink_muted).child(installed.version.clone().unwrap_or_default()))
                 .on_click(move |_, _, _| {
                     let app = installed.clone();
                     std::thread::spawn(move || otherwise::launch(&app));
                 })
         });
-        Some(div().w_full().flex().flex_col().gap(px(4.)).child(ui::section_title(t, i18n::t!("app.about.more_apps"))).children(rows))
+        Some(
+            div()
+                .w_full()
+                .flex()
+                .flex_col()
+                .items_center()
+                .gap(px(otherwise_ui::tokens::space::S3))
+                .child(otherwise_ui::section_title(t, i18n::t!("app.about.more_apps")))
+                .child(div().flex().flex_wrap().justify_center().gap(px(otherwise_ui::tokens::space::S2)).children(chips)),
+        )
     }
 }

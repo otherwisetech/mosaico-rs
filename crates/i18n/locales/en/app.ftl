@@ -2,9 +2,10 @@ app.cli.usage = Usage: mosaico [FOLDER…]\nOpens mosaico and, if folders are gi
 app.menu.quit = Quit mosaico
 app.credit.menu = {company} website
 app.about.menu = About {app}
-app.about.footer = {app} {version} · {company} · About
+app.about.footer_link = About
+app.privacy.local = Your data stays on this computer
 app.about.description = Organize your photos and videos by date, on your own disk. Shows a preview before touching anything, copies by default, never overwrites, and can undo. Nothing leaves your computer.
-app.about.by = Developed by {company}
+app.about.by = Made by {company}
 app.about.place = Wyoming, USA
 app.about.visit = Visit otherwisetech.com
 app.about.source = Source code on GitHub
@@ -161,7 +162,7 @@ app.people.empty = No photos of this person in these folders yet.
 app.people.in_folder = {name} (folder)
 app.people.tag_photo = Person in this photo
 app.people.tag_folder = Person in this folder
-app.people.registry_off = Turn on shared entities in Otherwise Apps to tag people from your other apps.
+app.people.registry_off = Turn on shared entities in Otherwise Hub to tag people from your other apps.
 app.people.none = No people in the shared registry yet.
 
 # data folder, cloud safety

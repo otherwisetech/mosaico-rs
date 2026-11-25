@@ -2,9 +2,10 @@ app.cli.usage = Uso: mosaico [PASTA…]\nAbre o mosaico e, se forem indicadas pa
 app.menu.quit = Sair do mosaico
 app.credit.menu = Site da {company}
 app.about.menu = Sobre o {app}
-app.about.footer = {app} {version} · {company} · Sobre
+app.about.footer_link = Sobre
+app.privacy.local = Seus dados ficam neste computador
 app.about.description = Organize as suas fotos e vídeos por data, no seu próprio disco. Mostra um plano antes de mexer em qualquer coisa, copia por padrão, nunca sobrescreve e pode ser desfeito. Nada sai do seu computador.
-app.about.by = Desenvolvido por {company}
+app.about.by = Feito por {company}
 app.about.place = Wyoming, EUA
 app.about.visit = Visitar otherwisetech.com
 app.about.source = Código-fonte no GitHub
@@ -161,7 +162,7 @@ app.people.empty = Ainda não há fotos desta pessoa nestas pastas.
 app.people.in_folder = {name} (pasta)
 app.people.tag_photo = Pessoa nesta foto
 app.people.tag_folder = Pessoa nesta pasta
-app.people.registry_off = Ative as entidades compartilhadas no Otherwise Apps para marcar pessoas dos seus outros apps.
+app.people.registry_off = Ative as entidades compartilhadas no Otherwise Hub para marcar pessoas dos seus outros apps.
 app.people.none = Ainda não há pessoas no registro compartilhado.
 
 # data folder, cloud safety
