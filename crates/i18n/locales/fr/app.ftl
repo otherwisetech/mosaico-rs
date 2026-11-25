@@ -2,9 +2,10 @@ app.cli.usage = Utilisation : mosaico [DOSSIER…]\nOuvre mosaico et, si des dos
 app.menu.quit = Quitter mosaico
 app.credit.menu = Site de {company}
 app.about.menu = À propos de {app}
-app.about.footer = {app} {version} · {company} · À propos
+app.about.footer_link = À propos
+app.privacy.local = Vos données restent sur cet ordinateur
 app.about.description = Rangez vos photos et vidéos par date, sur votre propre disque. Un plan est montré avant de toucher à quoi que ce soit ; copie par défaut, n’écrase jamais rien et peut être annulé. Rien ne quitte votre ordinateur.
-app.about.by = Développé par {company}
+app.about.by = Réalisé par {company}
 app.about.place = Wyoming, États-Unis
 app.about.visit = Visiter otherwisetech.com
 app.about.source = Code source sur GitHub
@@ -161,7 +162,7 @@ app.people.empty = Pas encore de photos de cette personne dans ces dossiers.
 app.people.in_folder = {name} (dossier)
 app.people.tag_photo = Personne sur cette photo
 app.people.tag_folder = Personne dans ce dossier
-app.people.registry_off = Activez les entités partagées dans Otherwise Apps pour identifier les personnes de vos autres apps.
+app.people.registry_off = Activez les entités partagées dans Otherwise Hub pour identifier les personnes de vos autres apps.
 app.people.none = Pas encore de personnes dans le registre partagé.
 
 # data folder, cloud safety

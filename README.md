@@ -63,7 +63,7 @@ mosaico uses [otherwise-link](https://github.com/otherwisetech/otherwise-link), 
 Otherwise Technologies' apps share. Everything stays on your computer.
 
 - **People.** When the shared entity registry is on (in
-  [Otherwise Apps](https://github.com/otherwisetech/otherwise-apps) → Entities), select a photo and
+  [Otherwise Hub](https://github.com/otherwisetech/otherwise-apps) → Entities), select a photo and
   use **Person in this photo** / **Person in this folder** to tag the people your other apps know
   (for example from genealogy-rs). A folder's tag covers everything under it. The sidebar's
   **People** list shows only that person's photos. mosaico only *reads* the registry; the tags live
@@ -71,7 +71,7 @@ Otherwise Technologies' apps share. Everything stays on your computer.
   keyed by path, so photos you *move* with Organize lose theirs (copies keep the originals'
   tags). When two people are merged in the registry, their tags follow.
 - **Links.** mosaico opens `otherwise-mosaico://` links (also `otherwise://mosaico/…` through
-  Otherwise Apps):
+  Otherwise Hub):
 
   | Link | Does |
   |------|------|
@@ -85,13 +85,13 @@ Otherwise Technologies' apps share. Everything stays on your computer.
   file is in `~/.local/share/applications`.
 - **About** lists the other Otherwise apps installed on this computer; click one to open it.
 
-mosaico has no folder it watches, so it publishes nothing to Otherwise Apps' *Today* view.
+mosaico has no folder it watches, so it publishes nothing to Otherwise Hub's *Today* view.
 
 ## Where files live
 
 - **mosaico's own files** (undo journals, `people.json`, settings, recent folders, the last
   destination) live in the Otherwise data folder, `~/.otherwise/mosaico/` (or wherever you moved
-  the data root in Otherwise Apps). Version 0.3 moves them there once from the old folder
+  the data root in Otherwise Hub). Version 0.3 moves them there once from the old folder
   (`~/Library/Application Support/mosaico`, `$XDG_DATA_HOME/mosaico` + `$XDG_CONFIG_HOME/mosaico`,
   `%APPDATA%\mosaico`): each file is renamed, or copied, verified and only then deleted; nothing
   is overwritten, and a journal whose name is already taken moves under a free name so undo keeps

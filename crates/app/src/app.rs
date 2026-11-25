@@ -8,7 +8,7 @@ use gpui::*;
 use gpui_component::button::{Button, ButtonVariants as _};
 use gpui_component::input::{InputEvent, InputState};
 use gpui_component::menu::{DropdownMenu as _, PopupMenuItem};
-use gpui_component::{IconName, Sizable as _, Theme};
+use gpui_component::{IconName, Sizable as _};
 use mosaico_core::apply::{Report, UndoReport};
 use mosaico_core::journal::{self, Summary};
 use mosaico_core::plan::{self, Mode, Plan};
@@ -31,8 +31,7 @@ pub fn bind_keys(cx: &mut App) {
 }
 
 pub(crate) fn sync_theme(window: Option<&mut Window>, cx: &mut App) {
-    Theme::sync_system_appearance(window, cx);
-    Theme::global_mut(cx).font_family = SANS.into();
+    crate::theme::apply(window, cx);
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -381,24 +380,22 @@ impl MosaicoApp {
     // ── rendering ─────────────────────────────────────────────────────────────────────────────
 
     fn render_topbar(&self, t: &Tokens, cx: &mut Context<Self>) -> impl IntoElement {
-        let mut left = div().flex().items_center().gap(px(10.)).min_w_0().flex_1();
-        left = left.child(div().flex().flex_none().items_center().justify_center().size(px(30.)).rounded(px(8.)).bg(t.brand).child(ui::logo_mark(17., gpui::white())));
-        match (&self.library, &self.phase) {
+        let mut header = match (&self.library, &self.phase) {
             (Some(lib), Phase::Ready | Phase::Preview | Phase::Planning { .. }) => {
                 let summary = i18n::tn!("app.topbar.items", lib.items.len(), count = group(lib.items.len() as u64), size = human(lib.total_bytes()));
                 let name = match lib.roots.as_slice() {
                     [one] => display_name(one),
                     many => i18n::tn!("app.topbar.sources", many.len()),
                 };
-                left = left.child(div().text_size(px(15.)).font_weight(FontWeight::SEMIBOLD).truncate().child(name)).child(div().flex_none().text_size(px(12.)).text_color(t.ink_muted).child(summary));
+                otherwise_ui::AppHeader::new(otherwise_ui::logo_mark(crate::LOGO_SVG), name).subtitle(summary)
             }
-            _ => left = left.child(div().text_size(px(15.)).font_weight(FontWeight::SEMIBOLD).child(crate::APP_NAME)),
-        }
+            _ => otherwise_ui::AppHeader::new(otherwise_ui::logo_mark(crate::LOGO_SVG), crate::APP_NAME),
+        };
         let ready = matches!(self.phase, Phase::Ready);
         let current = i18n::locale();
         let weak = cx.entity().downgrade();
         let stars_on = crate::star::enabled(cx);
-        let lang = Button::new("lang").ghost().icon(IconName::Globe).with_size(px(34.)).tooltip(i18n::t!("common.language")).dropdown_menu_with_anchor(Anchor::TopRight, move |mut menu, _, _| {
+        let lang = Button::new("lang").ghost().icon(IconName::Globe).with_size(px(otherwise_ui::tokens::size::CONTROL)).tooltip(i18n::t!("common.language")).dropdown_menu_with_anchor(Anchor::TopRight, move |mut menu, _, _| {
             menu = menu.label(i18n::t!("common.language"));
             for (code, name) in i18n::available() {
                 let w = weak.clone();
@@ -421,20 +418,9 @@ impl MosaicoApp {
         });
         let uncertain = self.library.as_ref().map(|l| l.count_by_source(mosaico_core::DateSource::Modified)).unwrap_or(0);
         let filter_on = self.only_uncertain;
-        div()
-            .flex()
-            .flex_none()
-            .items_center()
-            .gap(px(8.))
-            .h(px(52.))
-            .px(px(12.))
-            .border_b_1()
-            .border_color(t.border)
-            .bg(t.surface)
-            .child(left)
-            .when(ready && uncertain > 0, |d| {
-                let (fg, bg, border) = if filter_on { (t.warn, t.warn_soft, t.warn) } else { (t.ink, t.surface, t.border) };
-                d.child(
+        if ready && uncertain > 0 {
+            let (fg, bg, border) = if filter_on { (t.warn, t.warn_soft, t.warn) } else { (t.ink, t.surface, t.border) };
+            header = header.action(
                     ui::outline_button(t, "filter-uncertain")
                         .border_color(border)
                         .bg(bg)
@@ -446,19 +432,20 @@ impl MosaicoApp {
                             this.rebuild_timeline();
                             cx.notify();
                         })),
-                )
-            })
-            .when(ready, |d| {
-                d.child(ui::filled_button(t, "organize", t.accent).child(icon(IconName::LayoutDashboard, 15., t.on_fill())).child(i18n::t!("app.topbar.organize")).on_click(cx.listener(|this, _, _, cx| {
+            );
+        }
+        if ready {
+            header = header
+                .action(ui::filled_button(t, "organize", t.accent).child(icon(IconName::LayoutDashboard, 15., t.on_fill())).child(i18n::t!("app.topbar.organize")).on_click(cx.listener(|this, _, _, cx| {
                     this.panel = !this.panel;
                     cx.notify();
                 })))
-            })
-            .when(ready, |d| d.child(ui::icon_button(t, "rescan", IconName::Redo, true).on_click(cx.listener(|this, _, window, cx| this.start_scan(window, cx)))))
-            .when(!matches!(self.phase, Phase::Start | Phase::Working { .. }), |d| {
-                d.child(ui::outline_button(t, "sources").child(icon(IconName::FolderOpen, 15., t.ink)).child(i18n::t!("app.topbar.sources_button")).on_click(cx.listener(|this, _, window, cx| this.go_start(window, cx))))
-            })
-            .child(lang)
+                .action(ui::icon_button(t, "rescan", IconName::Redo, true).on_click(cx.listener(|this, _, window, cx| this.start_scan(window, cx))));
+        }
+        if !matches!(self.phase, Phase::Start | Phase::Working { .. }) {
+            header = header.action(ui::outline_button(t, "sources").child(icon(IconName::FolderOpen, 15., t.ink)).child(i18n::t!("app.topbar.sources_button")).on_click(cx.listener(|this, _, window, cx| this.go_start(window, cx))));
+        }
+        header.action(lang)
     }
 
     fn render_start(&self, t: &Tokens, cx: &mut Context<Self>) -> impl IntoElement {
@@ -617,90 +604,32 @@ impl MosaicoApp {
             (Phase::Ready | Phase::Preview, None) => self.library.as_ref().map(|l| l.roots.iter().map(|r| r.display().to_string()).collect::<Vec<_>>().join(" · ")).unwrap_or_default(),
             _ => String::new(),
         };
-        let ink = t.ink;
-        div()
-            .flex()
-            .flex_none()
-            .items_center()
-            .gap(px(12.))
-            .h(px(26.))
-            .px(px(12.))
-            .border_t_1()
-            .border_color(t.border)
-            .bg(t.surface)
-            .text_size(px(11.))
-            .text_color(t.ink_muted)
-            .child(div().flex_1().min_w_0().truncate().child(left))
-            .child(crate::star::footer_link(t, cx))
-            .child(
-                div()
-                    .id("footer-about")
-                    .flex_none()
-                    .cursor_pointer()
-                    .hover(move |s| s.text_color(ink).underline())
-                    .child(i18n::t!("app.about.footer", app = crate::APP_NAME, version = crate::VERSION, company = crate::COMPANY))
-                    .on_click(cx.listener(|this, _, _, cx| this.show_about(cx))),
-            )
+        let status = if left.is_empty() { otherwise_ui::privacy_note(t, i18n::t!("app.privacy.local"), None).into_any_element() } else { div().truncate().child(left).into_any_element() };
+        otherwise_ui::AppFooter::new(crate::APP_NAME, i18n::t!("app.about.footer_link"))
+            .version(crate::VERSION)
+            .status(status)
+            .item(crate::star::footer_link(t, cx))
+            .on_about(cx.listener(|this, _, _, cx| this.show_about(cx)))
     }
 
     fn render_about(&self, t: &Tokens, cx: &mut Context<Self>) -> impl IntoElement {
-        let accent = t.accent;
-        let card = div()
-            .id("about-card")
-            .relative()
-            .flex()
-            .flex_col()
-            .items_center()
-            .gap(px(12.))
-            .w(px(420.))
-            .px(px(32.))
-            .pt(px(32.))
-            .pb(px(26.))
-            .rounded(px(18.))
-            .border_1()
-            .border_color(t.border)
-            .bg(t.surface)
-            .shadow_lg()
-            // clicks inside the card must not reach the backdrop
-            .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
-            .child(div().absolute().top(px(10.)).right(px(10.)).child(ui::icon_button(t, "about-close", IconName::Close, true).on_click(cx.listener(|this, _, _, cx| {
-                this.about = false;
-                cx.notify();
-            }))))
-            .child(img(self.logo.clone()).size(px(88.)))
-            .child(div().flex().items_baseline().gap(px(8.)).child(div().text_size(px(22.)).font_weight(FontWeight::SEMIBOLD).child(crate::APP_NAME)).child(div().text_size(px(13.)).text_color(t.ink_muted).child(crate::VERSION)))
-            .child(div().text_center().text_size(px(13.)).line_height(px(19.)).text_color(t.ink_muted).child(i18n::t!("app.about.description")))
-            .child(div().w_full().h(px(1.)).my(px(4.)).bg(t.border))
-            .child(div().flex().flex_col().items_center().gap(px(2.)).child(div().text_size(px(13.)).child(i18n::t!("app.about.by", company = crate::COMPANY))).child(div().text_size(px(12.)).text_color(t.ink_muted).child(i18n::t!("app.about.place"))))
-            .child(ui::filled_button(t, "about-site", t.accent).mt(px(4.)).child(i18n::t!("app.about.visit")).on_click(|_, _, cx| cx.open_url(crate::COMPANY_URL)))
-            .child(
-                div()
-                    .flex()
-                    .items_center()
-                    .gap(px(14.))
-                    .child(div().id("about-source").text_size(px(12.)).text_color(accent).cursor_pointer().hover(|s| s.underline()).child(i18n::t!("app.about.source")).on_click(|_, _, cx| cx.open_url(crate::REPO_URL)))
-                    .child(crate::star::about_button(t, cx)),
-            )
-            .child(crate::star::about_ask(t))
-            .child(crate::vcity::about_block(t))
-            .children(self.render_other_apps(t))
-            .child(div().text_size(px(11.)).text_color(t.ink_muted).child(i18n::t!("app.about.license")));
-        div()
-            .id("about-backdrop")
-            .absolute()
-            .inset_0()
-            .flex()
-            .items_center()
-            .justify_center()
-            .bg(gpui::black().opacity(if t.dark { 0.55 } else { 0.32 }))
-            .on_mouse_down(
-                MouseButton::Left,
-                cx.listener(|this, _, _, cx| {
-                    this.about = false;
-                    cx.notify();
-                }),
-            )
-            .child(card)
+        let star = div().flex().flex_col().items_center().gap(px(otherwise_ui::tokens::space::S3)).child(crate::star::about_button(t, cx)).child(crate::star::about_ask(t));
+        let about = otherwise_ui::AboutModal::new(crate::APP_NAME, crate::VERSION, i18n::t!("app.about.by", company = crate::COMPANY))
+            .logo(self.logo.clone())
+            .description(i18n::t!("app.about.description"))
+            .place(i18n::t!("app.about.place"))
+            .website(i18n::t!("app.about.visit"), crate::COMPANY_URL)
+            .vcity(i18n::t!("app.vcity.pitch"), crate::vcity::menu_label(), crate::vcity::url(crate::otherwise::APP_ID))
+            .source(i18n::t!("app.about.source"), crate::REPO_URL)
+            .extra(star);
+        let about = match self.render_other_apps(t) {
+            Some(apps) => about.extra(apps),
+            None => about,
+        };
+        about.license(i18n::t!("app.about.license")).on_dismiss(cx.listener(|this, _: &otherwise_ui::Dismiss, _, cx| {
+            this.about = false;
+            cx.notify();
+        }))
     }
 }
 

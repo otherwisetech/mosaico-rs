@@ -24,8 +24,8 @@ use std::path::PathBuf;
 actions!(mosaico, [Quit, OpenWebsite, OpenVcity, RevealData]);
 
 pub(crate) const APP_NAME: &str = "mosaico"; // i18n-ok: product name
-pub(crate) const COMPANY: &str = "Otherwise Technologies LLC"; // i18n-ok: company name
-pub(crate) const COMPANY_URL: &str = "https://otherwisetech.com";
+pub(crate) const COMPANY: &str = otherwise_ui::COMPANY;
+pub(crate) const COMPANY_URL: &str = otherwise_ui::COMPANY_URL;
 pub(crate) const REPO_URL: &str = "https://github.com/otherwisetech/mosaico-rs";
 pub(crate) const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -83,12 +83,6 @@ fn set_dock_icon() {
     }
 }
 
-const FONTS: [&[u8]; 3] = [
-    include_bytes!("../assets/fonts/Inter-Regular.ttf"),
-    include_bytes!("../assets/fonts/Inter-Medium.ttf"),
-    include_bytes!("../assets/fonts/Inter-SemiBold.ttf"),
-];
-
 fn main() {
     storage::init();
     i18n::set_locale(settings::initial_language(&settings::Settings::load()));
@@ -107,12 +101,10 @@ fn main() {
     let application = gpui_platform::application().with_assets(AppAssets);
     application.on_open_urls(otherwise::push_urls);
     application.run(move |cx| {
-        if let Err(e) = cx.text_system().add_fonts(FONTS.iter().map(|f| Cow::Borrowed(*f)).collect()) {
-            eprintln!("fonts: {e}");
-        }
         #[cfg(target_os = "macos")]
         set_dock_icon();
         gpui_component::init(cx);
+        otherwise_ui::init(otherwise_ui::accents::MOSAICO, cx);
         app::sync_theme(None, cx);
         app::bind_keys(cx);
         cx.bind_keys([KeyBinding::new("secondary-q", Quit, None)]);

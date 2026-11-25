@@ -1,5 +1,5 @@
 //! Where mosaico keeps its own files: `<data root>/mosaico/` (`~/.otherwise/mosaico/` unless the
-//! user moved the root in Otherwise Apps) holds the undo journals, `people.json`, settings and
+//! user moved the root in Otherwise Hub) holds the undo journals, `people.json`, settings and
 //! recent folders. Before 0.3 they were in the platform folders (`dirs::legacy_*`); [`init`]
 //! moves them over once. Photos are never touched here.
 //!
