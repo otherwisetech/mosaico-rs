@@ -46,6 +46,12 @@ crates/app   `mosaico` desktop app (GPUI + gpui-component): app.rs (phases, star
 - GPUI pins: `Cargo.lock` pins the same zed / gpui-component revs as rama-rs. Never
   `cargo update` the GPUI git deps; restore the lock if a partial build prunes them.
 
+## Release
+
+Releases stay in this repo (`gh release create vX.Y.Z` with each file and its `.sha256`).
+Notes, file names and issue forms follow the family's release rules: otherwisetech/otherwise-apps
+`docs/releases.md` (how the Hub discovers and verifies releases).
+
 ## Validate
 
 ```
